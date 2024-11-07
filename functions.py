@@ -66,6 +66,41 @@ def faultytest_solve_sudoku(puzzle, size=4):
 
     return solved_grid
 #Test functions to use when needed
+def solve_sudoku_spare(rules: list[list[int]], puzzle: list[list[int]], size) -> list[list[int]] | None:
+    """
+    Solves a Sudoku puzzle using given rules and an initial puzzle setup.
+
+    Args:
+        rules (list[list[int]]): A list of rules in CNF form for Sudoku constraints.
+        puzzle (list[list[int]]): A grid of given size representing the puzzle, with `0` for empty cells.
+
+    Returns:
+        list[list[int]] | None: A solved Sudoku grid if a solution exists, otherwise None.
+    """
+    assignment = {} # the sudoku
+    values2solve = {}
+    cells_unknown = 0
+
+    print(puzzle)
+    for i, row in enumerate(puzzle):
+        for j, value in enumerate(row):
+            if value != 0:  # if 0, cell is empty, if not 0, it is a pre-filled cell
+                # Make the value in row i, column j True if it is the value from the sudoku, all other numbers in that place False
+                for k in range(size):
+                    assignment[(i + 1) * 100 + (j + 1) * 10 + k + 1] = k + 1 == value
+            else:
+                for k in range(size):
+                    values2solve[((i + 1) * 100 + (j + 1) * 10 + k + 1)] = k + 1 == value
+                cells_unknown += 1
+    print(f'The unknown values are: {values2solve}')
+    # print(f'The known values are: {assignment}')
+
+    with tqdm(total=2**cells_unknown, desc="Solving Sudoku") as pbar:
+        solution = dpll(rules, values2solve, size, pbar)
+    if not solution:
+        return None
+
+    return solution
 def old_dpll(rules: list[list[int]], assignment: dict[int, bool], size,  pbar: tqdm, history: list[int] = [0]) -> dict[int, bool] | None:
     """
     Solves a set of clauses using the DPLL algorithm.
