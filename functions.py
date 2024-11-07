@@ -66,6 +66,67 @@ def faultytest_solve_sudoku(puzzle, size=4):
 
     return solved_grid
 #Test functions to use when needed
+def old2_dpll(rules: list[list[int]], unassigned: dict[int, bool], assigned: dict[int, bool], size, pbar: tqdm, history: list[int] = [0]) -> dict[int, bool] | None:
+    """
+    Solves a set of clauses using the DPLL algorithm.
+
+    Args:
+        rules (list[list[int]]): A list of clauses, each as a list of literals.
+        unassigned (dict[int, bool]): Variables that need to be solved.
+        assigned (dict[int, bool]): Fixed variables that cannot be changed.
+        size (int): Size of the grid (e.g., for Sudoku).
+        pbar (tqdm): Progress bar for the solver.
+        history (list[int]): List of literals representing the path of the solver.
+
+    Returns:
+        dict[int, bool] | None: Satisfying assignment if one exists, otherwise None.
+    """
+    print("Start DPLL with history:", history)
+
+    # Simplify the clauses using unit propagation and pure literal elimination
+    clauses = single_literal(rules, unassigned)
+    if clauses is None:
+        return None  # Conflict found
+    if not clauses:
+        return {**assigned, **unassigned}  # All clauses satisfied, return combined solution
+
+    clauses = pure_literal(clauses, unassigned)
+    if not clauses:
+        return {**assigned, **unassigned}  # All clauses satisfied, return combined solution
+
+    # Select an unassigned variable (choose from the unassigned variables, not the assigned ones)
+    unassigned_vars = [var for clause in clauses for var in clause if var in unassigned]
+    unique_vars = list(set(unassigned_vars))
+
+    print('Unassigned variables:', unique_vars)
+    if not unique_vars:
+        print("No unassigned variables left")
+        return None  # No unassigned variables left, puzzle is inconsistent
+
+    literal = unique_vars[0]  # Pick the first unassigned literal
+    print(f"Trying literal: {literal} with unassigned={unassigned}")
+
+    # Try assigning True to the literal
+    print(f"Assigning {literal} = True")
+    unassigned[literal] = True
+    updated_clauses = [c for c in clauses if literal not in c]  # Remove satisfied clauses
+    result = dpll(updated_clauses, unassigned.copy(), assigned, size, pbar, history + [literal])
+    if result:
+        return result  # If assignment works, return it
+
+    # If assigning True doesn't work, backtrack and try False
+    unassigned[literal] = False
+    updated_clauses = [c for c in clauses if -literal not in c]  # Remove satisfied clauses by -literal
+    print(f"Assigning {literal} = False")
+    result = dpll(updated_clauses, unassigned.copy(), assigned, size, pbar, history + [-literal])
+    if result:
+        return result  # If assignment works, return it
+
+    # Backtrack
+    print(f"No solution for {literal}, backtracking...")
+    unassigned.pop(literal)  # Reset unassigned value
+    return None
+
 def solve_sudoku_spare(rules: list[list[int]], puzzle: list[list[int]], size) -> list[list[int]] | None:
     """
     Solves a Sudoku puzzle using given rules and an initial puzzle setup.
