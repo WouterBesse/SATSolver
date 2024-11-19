@@ -7,13 +7,13 @@ def load_rules(filename: str) -> list[list[int]]:
     rules = [list(map(int, clause.split()))[:-1] for clause in raw_rules[1:]]
     return rules
 
-def load_sudoku(filename: str) -> tuple[list[list[list[int | str]]], int]:
+def load_sudoku(filename: str) -> tuple[list[list[list[int]]], int]:
     with open(filename) as f:
         sudoku = f.read().splitlines()
 
-    puzzles: list[list[list[int | str]]] = []
+    puzzles: list[list[list[int]]] = []
     
-    puzzledim: int = math.sqrt(len(sudoku[0]))
+    puzzledim: float = math.sqrt(len(sudoku[0]))
     assert puzzledim.is_integer(), "The sudoku is not square"
     puzzledim = int(puzzledim)
     print(f"puzzledim: {puzzledim}")
@@ -35,3 +35,9 @@ def load_sudoku(filename: str) -> tuple[list[list[list[int | str]]], int]:
             newpuzzle.append(row)
         puzzles.append(newpuzzle)
     return puzzles, puzzledim
+
+def print_ass(assignment: dict) -> None:
+    for key in assignment.keys():
+        dimac = key if assignment[key] else -key
+        print(dimac, end=' ')
+    print('')
