@@ -144,7 +144,12 @@ def dpll_with_restarts(
     # Default restart schedule: geometric progression
     starttime = time.time()
     if restart_schedule is None:
-        restart_schedule = [5 * (2 ** i) for i in range(max_restarts)]
+        if max_restarts < 1:
+            raise ValueError("max_restarts must be at least 1")
+        elif max_restarts == 1:
+            restart_schedule = [50000]
+        else:
+            restart_schedule = [5 * (2 ** i) for i in range(max_restarts)]
 
     conflict_counter = [0]
     globalconflics = 0
@@ -319,7 +324,7 @@ if __name__ == '__main__':
             slist = [args.S1, args.S2, args.S3, args.S4, args.S5, args.S6, args.S7, args.S8]
             assert sum(slist) == 1, "Please select exactly one heuristic strategy."
             heuristic = slist.index(True) + 1
-            solution, takentime, conflicts, restarts, decisions, dimacs = solve_sudoku(rules, puzzles, size, schedulere=schedulelist[heuristic], dimacs=True, max_restarts=20)
+            solution, takentime, conflicts, restarts, decisions, dimacs = solve_sudoku(rules, puzzles, size, schedulere=schedulelist[heuristic], dimacs=True, max_restarts=20 if not args.S1 else 1)
             
             if solution is not None:
                 print("Solution:")
