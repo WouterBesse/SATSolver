@@ -349,9 +349,9 @@ if __name__ == '__main__':
             
     else:
         sched = args.schedule
-        wandb.init(project='sudoku-solver', name='9x9' + sched)
+        wandb.init(project='sudoku-solver', name='9x9new' + sched)
         rules = load_rules('./sudoku/sudoku-rules-9x9.txt')
-        puzzles, size = load_sudoku('./sudoku/1000 sudokus.txt')
+        puzzles, size = load_sudoku('./sudoku/top2365.sdk.txt')
         for i, puzzle in enumerate(puzzles):
             print(f"Solving puzzle {i + 1}...")
             solution, takentime, conflicts, restarts, decisions, _  = solve_sudoku(rules, puzzle, size, schedulere=sched) 
@@ -366,19 +366,19 @@ if __name__ == '__main__':
             print()
             
         wandb.finish()
-        wandb.init(project='sudoku-solver', name='16x16' + sched)
-        rules = load_rules('./sudoku/sudoku-rules-16x16.txt')
-        puzzles, size = load_sudoku('./sudoku/16x16.txt')
-        for i, puzzle in enumerate(puzzles):
-            print(f"Solving puzzle {i + 1}...")
-            solution, takentime, conflicts, restarts, decisions, _  = solve_sudoku(rules, puzzle, size, schedulere=sched)
-            if solution:
-                print("Solution:")
-                for row in solution:
-                    print(row)
-            else:
-                print("No solution found.")
+        # wandb.init(project='sudoku-solver', name='16x16' + sched)
+        # rules = load_rules('./sudoku/sudoku-rules-16x16.txt')
+        # puzzles, size = load_sudoku('./sudoku/16x16.txt')
+        # for i, puzzle in enumerate(puzzles):
+        #     print(f"Solving puzzle {i + 1}...")
+        #     solution, takentime, conflicts, restarts, decisions, _  = solve_sudoku(rules, puzzle, size, schedulere=sched)
+        #     if solution:
+        #         print("Solution:")
+        #         for row in solution:
+        #             print(row)
+        #     else:
+        #         print("No solution found.")
                 
-            wandb.log({'success': 1 if solution is not None else 0 ,'time': takentime, 'conflicts': conflicts, 'decisions': decisions, 'restarts': restarts})
-            print()
+        #     wandb.log({'success': 1 if solution is not None else 0 ,'time': takentime, 'conflicts': conflicts, 'decisions': decisions, 'restarts': restarts})
+        #     print()
     
