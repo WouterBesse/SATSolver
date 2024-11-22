@@ -36,6 +36,37 @@ def load_sudoku(filename: str) -> tuple[list[list[list[int]]], int]:
         puzzles.append(newpuzzle)
     return puzzles, puzzledim
 
+def load_sudoku_dimacs(filename: str, puzzledim: int = 9) -> tuple[list[int], list[list[int]], int]:
+    with open(filename) as f:
+        sudokuandrules = f.read().splitlines()
+    
+    sudokuandrules = sudokuandrules[1:]
+    puzzledimacs: list[int] = []
+    rules: list[list[int]] = []
+    for i, line in enumerate(sudokuandrules):
+        if line == '111 112 113 114 115 116 117 118 119  0':
+            rules = [list(map(int, clause.split()))[:-1] for clause in sudokuandrules[i:]]
+            break
+        
+        puzzledimacs.append(int(line[:-1]))
+    
+    puzzles: list[list[list[int]]] = []
+    
+    return puzzledimacs, rules, puzzledim
+    
+def decode_dimacs(var: int, rcmult: int) -> tuple[int, int, int]:
+    num = var % rcmult
+    j = (((var - 1) // rcmult) % rcmult) - 1
+    i = ((var - 1 - (j + 1) * rcmult) // (rcmult**2)) - 1
+    
+    return num, i, j
+
+def export_sudoku_dimacs(puzzledimacs: list[int], filename: str) -> None:
+    with open(filename, 'w') as f:
+        f.write(f"p cnf {len(puzzledimacs)} {len(puzzledimacs)}\n")
+        for dimac in puzzledimacs:
+            f.write(f"{dimac} 0\n")
+
 def print_ass(assignment: dict) -> None:
     for key in assignment.keys():
         dimac = key if assignment[key] else -key

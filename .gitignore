@@ -1,3 +1,10 @@
 __pycache__
 ipynb_checkpoints
 .vscode
+*.csv
+*.pdf
+*.svg
+*.png
+*.jpg
+*.out
+wandb
